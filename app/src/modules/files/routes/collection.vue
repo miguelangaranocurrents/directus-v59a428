@@ -332,7 +332,8 @@ function useFileUpload() {
 			notificationsStore.remove(dragNotificationID);
 		}
 
-		const files = Array.from(event.dataTransfer.files).filter((file) => file.type);
+		const { files: droppedFiles, items: droppedItems } = event.dataTransfer;
+		const files = Array.from(droppedFiles).filter((_, index) => !isDroppedDirectory(droppedItems[index]));
 
 		fileUploadNotificationID = notificationsStore.add({
 			title: t(
@@ -384,6 +385,10 @@ function useFileUpload() {
 		notificationsStore.remove(fileUploadNotificationID);
 		emitter.emit(Events.upload);
 	}
+}
+
+function isDroppedDirectory(item?: DataTransferItem) {
+	return item?.webkitGetAsEntry?.()?.isDirectory === true;
 }
 
 async function downloadFiles() {
